@@ -1,64 +1,54 @@
 // src/components/NewsFeed.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./NewsFeed.css";
+
+const LIMIT = 20; // how many articles per load
 
 const NewsFeed = () => {
   const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    const fetchFeed = async () => {
-      try {
-        const res = await fetch("http://127.0.0.1:8000/feed");
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
 
-        if (!res.ok) {
-          throw new Error(`HTTP error ${res.status}`);
-        }
+    setLoading(true);
 
-        const data = await res.json();
+    try {
+      const res = await fetch(`/feed?page=${page}&limit=${LIMIT}`);
+      const data = await res.json();
 
-        if (!Array.isArray(data)) {
-          throw new Error("Feed response is not an array");
-        }
-
-        setArticles(data);
-      } catch (err) {
-        console.error("Error fetching feed:", err);
-        setError(err.message || "Failed to load feed");
-      } finally {
-        setLoading(false);
+      if (data.articles.length === 0) {
+        setHasMore(false);
+      } else {
+        setArticles((prev) => [...prev, ...data.articles]);
+        setPage((prev) => prev + 1);
       }
-    };
+    } catch (err) {
+      console.error("Error loading page:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, loading, hasMore]);
 
-    fetchFeed();
+  // Load first page on mount
+  useEffect(() => {
+    loadMore();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="news-page">
-        <header className="news-header">
-          <h1>Latest News</h1>
-        </header>
-        <main className="news-content">
-          <p>Loading…</p>
-        </main>
-      </div>
-    );
-  }
+  // Infinite scroll listener
+  useEffect(() => {
+    const handleScroll = () => {
+      const bottom =
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
 
-  if (error) {
-    return (
-      <div className="news-page">
-        <header className="news-header">
-          <h1>Latest News</h1>
-        </header>
-        <main className="news-content">
-          <p className="error">Error: {error}</p>
-        </main>
-      </div>
-    );
-  }
+      if (bottom) loadMore();
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loadMore]);
 
   return (
     <div className="news-page">
@@ -67,8 +57,6 @@ const NewsFeed = () => {
       </header>
 
       <main className="news-content">
-        {articles.length === 0 && <p>No articles found.</p>}
-
         {articles.map((article, index) => {
           const published = article.published
             ? new Date(article.published).toLocaleString()
@@ -94,6 +82,9 @@ const NewsFeed = () => {
             </article>
           );
         })}
+
+        {loading && <p className="loading">Loading more…</p>}
+        {!hasMore && <p className="end">No more articles.</p>}
       </main>
     </div>
   );
