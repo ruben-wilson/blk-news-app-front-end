@@ -1,53 +1,29 @@
-.news-page {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
-
-.news-header {
-  margin-bottom: 20px;
-}
-
-.news-header h1 {
-  font-size: 2rem;
-  text-align: center;
-}
-
-.news-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .news-item {
-  padding: 20px;
-  border-radius: 8px;
-  background: #f7f7f7;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  /* optional but nice: */
+  /* border: 1px solid #eee; */
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
 }
 
-.news-title-link {
-  text-decoration: none;
-  color: #222;
+.news-image-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;      /* consistent card shape */
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eee;          /* fallback color */
+  margin-bottom: 0.75rem;
+  position: relative;
 }
 
-.news-title-link:hover h2 {
-  text-decoration: underline;
-}
-
-.news-summary {
-  margin-top: 10px;
-  color: #444;
-}
-
-.news-date {
+/* Image is forced to fill the frame by scaling UP or DOWN */
+.news-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* fill frame, crop excess */
   display: block;
-  margin-top: 10px;
-  color: #666;
-  font-size: 0.8rem;
-}
 
-.error {
-  color: red;
+  image-rendering: auto;     /* smooth upscaling for small images */
+  transform: scale(1.05);    /* slight zoom to avoid black borders on weird ratios */
 }
