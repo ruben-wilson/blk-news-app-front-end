@@ -1,6 +1,5 @@
 // src/components/NewsFeed.js
 import React, { useEffect, useState } from "react";
-
 import "./NewsFeed.css";
 
 const NewsFeed = () => {
@@ -11,17 +10,13 @@ const NewsFeed = () => {
   useEffect(() => {
     const fetchFeed = async () => {
       try {
-        const res = await fetch("/feed");
+        const res = await fetch("http://127.0.0.1:8000/feed");
 
         if (!res.ok) {
           throw new Error(`HTTP error ${res.status}`);
         }
 
-        const text = await res.text();
-
-        // If your backend returns a plain JSON array (what you pasted),
-        // this should just work:
-        const data = JSON.parse(text);
+        const data = await res.json();
 
         if (!Array.isArray(data)) {
           throw new Error("Feed response is not an array");
@@ -59,7 +54,7 @@ const NewsFeed = () => {
           <h1>Latest News</h1>
         </header>
         <main className="news-content">
-          <p style={{ color: "red" }}>Error: {error}</p>
+          <p className="error">Error: {error}</p>
         </main>
       </div>
     );
@@ -90,7 +85,6 @@ const NewsFeed = () => {
                 <h2>{article.title}</h2>
               </a>
 
-              {/* summary from your feed is HTML (it has <a> + <font> tags) */}
               <p
                 className="news-summary"
                 dangerouslySetInnerHTML={{ __html: article.summary }}
