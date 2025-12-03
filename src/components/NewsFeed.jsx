@@ -1,7 +1,7 @@
 // src/components/NewsFeed.js
 import React, { useEffect, useState } from "react";
 
-import "NewsFeed";
+import "./NewsFeed.css";
 
 const NewsFeed = () => {
   const [articles, setArticles] = useState([]);
